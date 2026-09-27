@@ -1,0 +1,7 @@
+schema_version: 1
+extensions:
+  - kind: agent
+    name: tool_example
+    source: .
+    files: [tool_agent.py]
+    entrypoint: tool_agent:run

@@ -1,0 +1,9 @@
+# Released protocol: 25 tasks x 3 attempts. Requires matching built images and assets.
+# Authentication setup: docs/authentication.md. Inspect with --dry-run before starting.
+schema_version: 1
+options:
+  model:
+  - claude-code-opus-5
+  attempts: 3
+  gpus: [0, 1, 2, 3]
+  out_dir: ../../runs/claude-code-opus-5

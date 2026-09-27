@@ -1,0 +1,12 @@
+# Released protocol: 25 tasks x 3 attempts. Requires matching built images and assets.
+# Authentication setup: docs/authentication.md. Inspect with --dry-run before starting.
+schema_version: 1
+options:
+  model:
+  - grok-4.6
+  attempts: 3
+  gpus:
+  - 0
+  out_dir: ../../runs/grok-4.6
+  provider_env_file: ~/.config/codeaction/provider.env
+  provider_rate_limit_file: ~/.config/codeaction/rate-limits.json

@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.1",
+  "model": "gpt-6-astra",
+  "blocks": [
+    {
+      "role": "developer",
+      "tag": "skills_instructions",
+      "bytes": 4178,
+      "sha256": "9f695344d479081b2b39cf6d9f46dcab42bb8efa31b4df99732362317104c488"
+    },
+    {
+      "role": "developer",
+      "tag": "multi_agent_role",
+      "bytes": 2429,
+      "sha256": "47091490938505958b0c22ff42db6fd79b272a2af6923166f4c2cc53c4fe0df4"
+    },
+    {
+      "role": "developer",
+      "tag": "multi_agent_mode",
+      "bytes": 271,
+      "sha256": "6ded806e3cdbb35599ecaf8742574bc5274908472b1729090010c404c2151e8e"
+    },
+    {
+      "role": "user",
+      "tag": "environment_context",
+      "bytes": 471,
+      "sha256": "79ae323e2de2488dfaaa5a99cf00b16577e66ba9187b448b9a67ff90c92310c0"
+    }
+  ]
+}

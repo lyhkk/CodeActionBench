@@ -1,0 +1,17 @@
+# Free scripted lifecycle check. Requires the built images and installed assets.
+# Paths are relative to THIS file. Run: codeaction run --config configs/run.example.yaml
+schema_version: 1
+options:
+  task: place_bread_skillet
+  agent_mode: reference
+  interface_profile: reference-mcp
+  reference_model_mode: scripted
+  model: scripted
+  agent_label: scripted
+  attempts: 1
+  gpu: 0
+  run_dir: ../runs/scripted-example
+  assets_root: ../assets
+  sim_image: codeaction-sim:dev
+  reference_agent_image: codeaction-reference-agent:dev
+  gateway_image: codeaction-gateway:dev

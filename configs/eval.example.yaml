@@ -1,0 +1,9 @@
+# Free scripted batch for checking installation; not a model score.
+# Omit tasks to select the full released task pack.
+schema_version: 1
+options:
+  model: [scripted]
+  tasks: [place_bread_skillet]
+  attempts: 3
+  gpus: [0]
+  out_dir: ../runs/scripted-batch

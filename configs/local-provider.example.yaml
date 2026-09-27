@@ -1,0 +1,12 @@
+schema_version: 1
+options:
+  tasks:
+  - click_bell
+  attempts: 1
+  gpus:
+  - 0
+  model:
+  - example_provider_qwen
+  model_registry: ../examples/extensions/provider-models.json
+  extensions:
+  - ../examples/extensions/provider.yaml

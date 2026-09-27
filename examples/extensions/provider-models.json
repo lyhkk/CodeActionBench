@@ -1,0 +1,78 @@
+{
+  "schema_version": "0.1",
+  "registry_version": "example.1",
+  "models": {
+    "example_provider_qwen": {
+      "protocol": "local_provider",
+      "credential": "qwen",
+      "transport": {
+        "id": "qwen3.8-buffered-long-response-v4",
+        "connect_timeout_s": 20,
+        "first_response_timeout_s": 600,
+        "stream_idle_timeout_s": 600,
+        "response_hard_timeout_s": 600,
+        "streaming": false,
+        "attempts": 2,
+        "retry": {
+          "provider_timeout": {
+            "delays_s": [],
+            "jitter_ratio": 0,
+            "max_attempts": 1
+          }
+        }
+      },
+      "capabilities": {
+        "context_window_tokens": 1000000,
+        "max_output_tokens": 131072,
+        "token_estimator_id": "utf8-bytes-v1",
+        "source": "Alibaba Cloud Model Studio / DashScope docs (read 2026-08-11): 1,000,000-token context, 131,072 max output tokens, text+image+video input, function calling supported."
+      },
+      "reasoning_capture": {
+        "channel": "reasoning_content",
+        "expected_rungs": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "note": "DashScope returns thinking on reasoning_content. qwen3.8-max preserve_thinking requires every prior assistant reasoning_content to be replayed within the same episode; the adapter keeps that replay state episode-local. Native effort budgets are low=4096, medium=16384, xhigh=262144, and the benchmark high rung maps to native xhigh."
+      },
+      "default_reasoning_profile": "medium",
+      "reasoning_profiles": {
+        "low": {
+          "id": "qwen3.8-max-thinking-low-preserved-v4",
+          "reasoning": "thinking-low",
+          "requested_output_tokens": 131072,
+          "output_token_parameter": "max_completion_tokens",
+          "temperature": null,
+          "extra_body": {
+            "reasoning_effort": "low",
+            "preserve_thinking": true
+          }
+        },
+        "medium": {
+          "id": "qwen3.8-max-thinking-medium-preserved-v4",
+          "reasoning": "thinking-medium",
+          "requested_output_tokens": 131072,
+          "output_token_parameter": "max_completion_tokens",
+          "temperature": null,
+          "extra_body": {
+            "reasoning_effort": "medium",
+            "preserve_thinking": true
+          }
+        },
+        "high": {
+          "id": "qwen3.8-max-thinking-xhigh-preserved-v4",
+          "reasoning": "thinking-xhigh",
+          "requested_output_tokens": 131072,
+          "output_token_parameter": "max_completion_tokens",
+          "temperature": null,
+          "extra_body": {
+            "reasoning_effort": "xhigh",
+            "preserve_thinking": true
+          }
+        }
+      },
+      "provider_model": "qwen3.8-max"
+    }
+  }
+}

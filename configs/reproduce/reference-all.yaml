@@ -1,0 +1,10 @@
+# Seven reference agents in one batch. Each provider credential defaults to one active call.
+# Requires provider.env and rate-limits.json; see docs/authentication.md.
+schema_version: 1
+options:
+  model: [reference-agents]
+  attempts: 3
+  gpus: [0, 1, 2, 3]
+  out_dir: ../../runs/reference-all
+  provider_env_file: ~/.config/codeaction/provider.env
+  provider_rate_limit_file: ~/.config/codeaction/rate-limits.json

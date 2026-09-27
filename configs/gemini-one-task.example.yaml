@@ -1,0 +1,11 @@
+# One paid attempt for validating a provider, container isolation and result files.
+# This does not satisfy the released three-attempt scoring protocol.
+schema_version: 1
+options:
+  model: [gemini-3.6-flash]
+  tasks: [place_bread_skillet]
+  attempts: 1
+  gpus: [0]
+  out_dir: ../runs/gemini-one-task
+  provider_env_file: ~/.config/codeaction/provider.env
+  provider_rate_limit_file: ~/.config/codeaction/rate-limits.json

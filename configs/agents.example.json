@@ -1,0 +1,15 @@
+{
+  "schema_version": "codeaction-agents.v1",
+  "accounts": {
+    "claude-subscription": {
+      "plan": "subscription",
+      "max_concurrency": 1,
+      "token_file": "~/.config/codeaction/claude_oauth_token.sh"
+    },
+    "codex-subscription": {
+      "plan": "subscription",
+      "max_concurrency": 1,
+      "token_file": "~/.config/codeaction/codex"
+    }
+  }
+}

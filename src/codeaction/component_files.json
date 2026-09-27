@@ -1,0 +1,90 @@
+{
+  "reference-agent": [
+    "src/codeaction/__init__.py",
+    "src/codeaction/agents/__init__.py",
+    "src/codeaction/agents/reference/__init__.py",
+    "src/codeaction/agents/reference/container_main.py",
+    "src/codeaction/agents/reference/context.py",
+    "src/codeaction/agents/reference/reference_agent.py",
+    "src/codeaction/agents/reference/reference_mcp.py",
+    "src/codeaction/contracts/__init__.py",
+    "src/codeaction/contracts/embodiment.py",
+    "src/codeaction/contracts/failures.py",
+    "src/codeaction/contracts/harness_parameters.py",
+    "src/codeaction/contracts/identity.py",
+    "src/codeaction/contracts/result_contracts.py",
+    "src/codeaction/contracts/tool_results.py",
+    "src/codeaction/contracts/types.py",
+    "src/codeaction/contracts/version.py",
+    "src/codeaction/contracts/world_frame.py",
+    "src/codeaction/interface/__init__.py",
+    "src/codeaction/interface/api_reference.py",
+    "src/codeaction/interface/instructions.py",
+    "src/codeaction/interface/interface_extras.py",
+    "src/codeaction/interface/registry.py",
+    "src/codeaction/interface/schemas.py",
+    "src/codeaction/interface/tool_surface.py",
+    "src/codeaction/motion/__init__.py",
+    "src/codeaction/motion/motion_validation.py",
+    "src/codeaction/motion/orientation.py",
+    "src/codeaction/providers/__init__.py",
+    "src/codeaction/providers/anthropic_adapter.py",
+    "src/codeaction/providers/gemini_adapter.py",
+    "src/codeaction/providers/model_adapter.py",
+    "src/codeaction/providers/model_registry.py",
+    "src/codeaction/providers/models/__init__.py",
+    "src/codeaction/providers/models/registry.json",
+    "src/codeaction/providers/openai_responses_adapter.py",
+    "src/codeaction/providers/provider_runtime.py",
+    "src/codeaction/reporting/__init__.py",
+    "src/codeaction/reporting/turns_view.py",
+    "src/codeaction/runtime/__init__.py",
+    "src/codeaction/runtime/argcheck.py",
+    "src/codeaction/runtime/composition.py",
+    "src/codeaction/runtime/episode.py",
+    "src/codeaction/runtime/mcp_control.py",
+    "src/codeaction/paths.py",
+    "src/codeaction/extensions.py",
+    "src/codeaction/agents/reference/local_agent.py"
+  ],
+  "gateway": [
+    "src/codeaction/__init__.py",
+    "src/codeaction/contracts/__init__.py",
+    "src/codeaction/contracts/identity.py",
+    "src/codeaction/interface/__init__.py",
+    "src/codeaction/interface/interface_extras.py",
+    "src/codeaction/runtime/__init__.py",
+    "src/codeaction/runtime/public_tool_socket.py",
+    "src/codeaction/transport/mcp/gateway.py"
+  ],
+  "fixture-agent": [
+    "src/codeaction/agents/fixture/container_main.py"
+  ],
+  "claude-agent": [
+    "docker/entrypoint_agent.sh",
+    "docker/mcp_health.sh",
+    "docker/mcp_health_settings.json",
+    "docker/vendor_settings.json",
+    "src/codeaction/agents/vendor/claude_isolated_exec.sh",
+    "src/codeaction/agents/vendor/claude_auth.py",
+    "src/codeaction/transport/tcp/client.py"
+  ],
+  "codex-agent": [
+    "docker/codex_config.toml",
+    "docker/codex_feature_allowlist.txt",
+    "docker/codex_preamble_manifest.json",
+    "docker/entrypoint_codex_agent.sh",
+    "src/codeaction/agents/vendor/codex_feature_gate.py",
+    "src/codeaction/agents/vendor/codex_isolated_exec.sh",
+    "src/codeaction/transport/tcp/client.py"
+  ],
+  "scratch": [
+    "src/codeaction/__init__.py",
+    "src/codeaction/cli/tool.py",
+    "src/codeaction/runtime/__init__.py",
+    "src/codeaction/runtime/public_tool_socket.py"
+  ],
+  "scratch-launcher": [
+    "src/codeaction/runtime/scratch_launcher.py"
+  ]
+}

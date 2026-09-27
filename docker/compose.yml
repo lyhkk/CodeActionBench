@@ -1,0 +1,349 @@
+name: "codeaction-${CODEACTION_RUN_ID:?set CODEACTION_RUN_ID}"
+
+services:
+  sim:
+    image: "${CODEACTION_SIM_IMAGE:?set CODEACTION_SIM_IMAGE}"
+    user: "${CODEACTION_UID:?set CODEACTION_UID}:${CODEACTION_GID:?set CODEACTION_GID}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["${CODEACTION_GPU:?set CODEACTION_GPU}"]
+              capabilities: [gpu]
+    environment:
+      HOME: /tmp/bench_home
+      XDG_CACHE_HOME: /cache
+      ROBOTWIN_ROOT: /opt/robotwin
+      PYTHONPATH: /opt/codeaction/src:/opt/codeaction
+      CODEACTION_RUN_CONTEXT: /opt/codeaction/config/context.json
+      CODEACTION_EXTENSIONS_FILE: /opt/codeaction/config/extensions.json
+      PYOPENGL_PLATFORM: egl
+      CUDA_VISIBLE_DEVICES: "0"
+      # Declared harness parameter; ToolBox reads it, so it belongs to the SIM container, not the
+      # agent. Default 1 = shipped behaviour, so an unset variable can never change a run.
+      CODEACTION_ORIENTATION_ANCHOR: "${CODEACTION_ORIENTATION_ANCHOR:-1}"
+    tmpfs:
+      - /tmp:rw,exec,size=1g
+    volumes:
+      - "${CODEACTION_SIM_CODE:?set CODEACTION_SIM_CODE}:/opt/codeaction:ro"
+      - "${CODEACTION_BACKEND_CODE:?set CODEACTION_BACKEND_CODE}:/opt/robotwin:ro"
+      - "${CODEACTION_CACHE_DIR:?set CODEACTION_CACHE_DIR}:/cache"
+      - "${CODEACTION_TASK_PACK_ROOT:?set CODEACTION_TASK_PACK_ROOT}:/run/codeaction-task-pack:ro"
+      - "${CODEACTION_ATTEMPT_DIR:?set CODEACTION_ATTEMPT_DIR}:/outputs"
+      - "${CODEACTION_ASSETS_ROOT:?set CODEACTION_ASSETS_ROOT}:/opt/robotwin/assets:ro"
+    entrypoint: [/Robotwin/conda/envs/robotwin/bin/python]
+    command:
+      - -m
+      - codeaction.transport.tcp.server
+      - --listen-host
+      - 0.0.0.0
+      - --listen-port
+      - "8766"
+      - --accept-timeout
+      - "180"
+      - --
+      - /bin/bash
+      - /opt/codeaction/docker/entrypoint_sim.sh
+      - --task
+      - "${CODEACTION_TASK:?set CODEACTION_TASK}"
+      - --task-pack
+      - /run/codeaction-task-pack
+      - --seed
+      - "${CODEACTION_SEED:?set CODEACTION_SEED}"
+      - --out
+      - /outputs
+      - --agent-label
+      - "${CODEACTION_AGENT_LABEL:?set CODEACTION_AGENT_LABEL}"
+      - --interface-profile
+      - "${CODEACTION_SERVER_INTERFACE_PROFILE:-vendor-mcp-direct}"
+      # Which discovery sentence the controller rendered; the server recomputes the expected
+      # instruction surface with it. Default = the first vendor seat's mode.
+      - --tool-discovery
+      - "${CODEACTION_TOOL_DISCOVERY:-deferred_toolsearch}"
+      - --provenance-file
+      - provenance.json
+    networks:
+      control:
+        aliases: [sim]
+
+  claude-agent:
+    profiles: [provider]
+    image: "${CODEACTION_CLAUDE_AGENT_IMAGE:?set CODEACTION_CLAUDE_AGENT_IMAGE}"
+    user: "${CODEACTION_UID:?set CODEACTION_UID}:${CODEACTION_GID:?set CODEACTION_GID}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    environment:
+      CLAUDE_OAUTH_TOKEN_FILE: /run/secrets/codeaction/claude_oauth_token.sh
+      DISABLE_AUTOUPDATER: "1"
+      DISABLE_TELEMETRY: "1"
+      DISABLE_ERROR_REPORTING: "1"
+      DISABLE_BUG_COMMAND: "1"
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+      CLAUDE_CODE_DISABLE_AUTO_MEMORY: "1"
+      CLAUDE_CODE_DISABLE_CLAUDE_MDS: "1"
+      CLAUDE_CODE_SKIP_PROMPT_HISTORY: "1"
+      CLAUDE_CODE_DISABLE_ATTACHMENTS: "1"
+      CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"
+      CLAUDE_CODE_DISABLE_CRON: "1"
+      CLAUDE_CODE_EFFORT_LEVEL: "${CODEACTION_CLAUDE_EFFORT:?set CODEACTION_CLAUDE_EFFORT}"
+      # Claude Code's documented default, pinned so the two vendor seats declare one cap. Over
+      # this limit Claude Code does not truncate: it writes the result to a file and hands the
+      # model a path -- and Read is disallowed on this seat, so the result would simply be
+      # lost. The benchmark's 32 KiB result cap is what keeps that from ever happening.
+      MAX_MCP_OUTPUT_TOKENS: "25000"
+      CODEACTION_VENDOR_OUTPUT_DIR: /run/codeaction-vendor
+      CODEACTION_SIM_HOST: gateway
+      CODEACTION_SIM_PORT: "8765"
+      MCP_TIMEOUT: "120000"
+      MCP_TOOL_TIMEOUT: "600000"
+    tmpfs:
+      - /tmp:rw,exec,size=1g
+      - /workspace:rw,exec,size=256m,mode=0700,uid=${CODEACTION_UID:?set CODEACTION_UID},gid=${CODEACTION_GID:?set CODEACTION_GID}
+    volumes:
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}:/run/codeaction/code:ro"
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}/docker/entrypoint_agent.sh:/usr/local/bin/entrypoint_agent.sh:ro"
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}/docker/mcp_health.sh:/usr/local/bin/mcp_health.sh:ro"
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}/docker/mcp_health_settings.json:/usr/local/share/codeaction/mcp_health_settings.json:ro"
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}/docker/vendor_settings.json:/usr/local/share/codeaction/vendor_settings.json:ro"
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}/src/codeaction/agents/vendor/claude_isolated_exec.sh:/usr/local/bin/claude_isolated_exec.sh:ro"
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}/src/codeaction/agents/vendor/claude_auth.py:/usr/local/bin/claude_auth.py:ro"
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}/src/codeaction/transport/tcp/client.py:/usr/local/bin/mcp_tcp_client.py:ro"
+      - "${CODEACTION_TOKEN_FILE:?set CODEACTION_TOKEN_FILE}:/run/secrets/codeaction/claude_oauth_token.sh:ro"
+      - "${CODEACTION_MCP_CONFIG:?set CODEACTION_MCP_CONFIG}:/run/codeaction/mcp.json:ro"
+      - "${CODEACTION_VENDOR_DIR:?set CODEACTION_VENDOR_DIR}:/run/codeaction-vendor"
+    command:
+      - -p
+      - "${CODEACTION_PROMPT:?set CODEACTION_PROMPT}"
+      - --model
+      - "${CODEACTION_MODEL:?set CODEACTION_MODEL}"
+      - --effort
+      - "${CODEACTION_CLAUDE_EFFORT:?set CODEACTION_CLAUDE_EFFORT}"
+      # Anthropic's `thinking.display` defaults to `omitted` on Opus 4.7+ -- thinking blocks
+      # arrive with empty bodies (measured: 2,914 empty blocks across all 85 release episodes,
+      # and a controlled local A/B on 2.1.156 flipped text on with exactly this flag). Asking
+      # for the summarized display is what makes the vendor transcript carry thinking text at
+      # all; the raw chain of thought is never returned on these models regardless.
+      - --thinking-display
+      - summarized
+      - --settings
+      - /usr/local/share/codeaction/vendor_settings.json
+      - --mcp-config
+      - /run/codeaction/mcp.json
+      - --strict-mcp-config
+      - --tools
+      - ToolSearch
+      - --allowedTools
+      - mcp__codeaction__*,ToolSearch
+      - --disallowedTools
+      - Bash,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch,TodoWrite,Task,NotebookEdit,Skill,Workflow
+      - --permission-mode
+      - dontAsk
+      - --output-format
+      - stream-json
+      - --verbose
+      - --include-partial-messages
+      - --no-session-persistence
+      - --disable-slash-commands
+      - --no-chrome
+    networks: [agentbus, egress]
+
+  codex-agent:
+    profiles: [codex]
+    image: "${CODEACTION_CODEX_AGENT_IMAGE:?set CODEACTION_CODEX_AGENT_IMAGE}"
+    user: "${CODEACTION_UID:?set CODEACTION_UID}:${CODEACTION_GID:?set CODEACTION_GID}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    environment:
+      CODEACTION_CODEX_AUTH_DIR: /run/secrets/codeaction/codex-home
+      CODEACTION_CODEX_CONFIG: /usr/local/share/codeaction/codex_config.toml
+      CODEACTION_CODEX_STATE_DIR: /run/codeaction-codex-home
+      CODEACTION_VENDOR_OUTPUT_DIR: /run/codeaction-vendor
+      # The same gateway, on the same port, as the first vendor seat. Two agent stacks compared
+      # on one benchmark must traverse identical transport to an identical server; pointing this
+      # one straight at sim:8766 would have measured a different interface.
+      CODEACTION_SIM_HOST: gateway
+      CODEACTION_SIM_PORT: "8765"
+      MCP_TIMEOUT: "120000"
+      MCP_TOOL_TIMEOUT: "600000"
+    tmpfs:
+      - /tmp:rw,exec,size=1g
+      - /workspace:rw,exec,size=256m,mode=0700,uid=${CODEACTION_UID:?set CODEACTION_UID},gid=${CODEACTION_GID:?set CODEACTION_GID}
+      # Codex WRITES to CODEX_HOME at startup -- sqlite state, an installation id, a skills
+      # directory -- so the mounted account is read-only and the session's throwaway home lives
+      # here. It is not under /tmp because Codex refuses to create its PATH helper binaries when
+      # CODEX_HOME sits in a temporary directory, and warns on every invocation.
+      - /run/codeaction-codex-home:rw,exec,size=256m,mode=0700,uid=${CODEACTION_UID:?set CODEACTION_UID},gid=${CODEACTION_GID:?set CODEACTION_GID}
+    volumes:
+      - "${CODEACTION_CODEX_AGENT_CODE:?set CODEACTION_CODEX_AGENT_CODE}:/run/codeaction/code:ro"
+      - "${CODEACTION_CODEX_AGENT_CODE:?set CODEACTION_CODEX_AGENT_CODE}/docker/codex_config.toml:/usr/local/share/codeaction/codex_config.toml:ro"
+      - "${CODEACTION_CODEX_AGENT_CODE:?set CODEACTION_CODEX_AGENT_CODE}/docker/codex_feature_allowlist.txt:/usr/local/share/codeaction/codex_feature_allowlist.txt:ro"
+      - "${CODEACTION_CODEX_AGENT_CODE:?set CODEACTION_CODEX_AGENT_CODE}/docker/codex_preamble_manifest.json:/usr/local/share/codeaction/codex_preamble_manifest.json:ro"
+      - "${CODEACTION_CODEX_AGENT_CODE:?set CODEACTION_CODEX_AGENT_CODE}/docker/entrypoint_codex_agent.sh:/usr/local/bin/entrypoint_codex_agent.sh:ro"
+      - "${CODEACTION_CODEX_AGENT_CODE:?set CODEACTION_CODEX_AGENT_CODE}/src/codeaction/agents/vendor/codex_feature_gate.py:/usr/local/bin/codex_feature_gate.py:ro"
+      - "${CODEACTION_CODEX_AGENT_CODE:?set CODEACTION_CODEX_AGENT_CODE}/src/codeaction/agents/vendor/codex_isolated_exec.sh:/usr/local/bin/codex_isolated_exec.sh:ro"
+      - "${CODEACTION_CODEX_AGENT_CODE:?set CODEACTION_CODEX_AGENT_CODE}/src/codeaction/transport/tcp/client.py:/usr/local/bin/mcp_tcp_client.py:ro"
+      - "${CODEACTION_CODEX_HOME:?set CODEACTION_CODEX_HOME}:/run/secrets/codeaction/codex-home:ro"
+      - "${CODEACTION_VENDOR_DIR:?set CODEACTION_VENDOR_DIR}:/run/codeaction-vendor"
+    command:
+      - exec
+      # An unrecognized config key must abort before the first turn rather than be ignored. This
+      # seat's lockdown IS its config, so a key that silently stopped applying after a CLI
+      # upgrade would seat the agent with a browser or a shell and score the episode anyway.
+      - --strict-config
+      - --skip-git-repo-check
+      # Not --ephemeral: the session rollout is the only record of what the model ran in the
+      # code-mode host between MCP calls. It lands in the throwaway home, is copied into the
+      # vendor output as evidence, and is destroyed with the container.
+      - --ignore-rules
+      - --json
+      - -s
+      - read-only
+      - -c
+      - model=${CODEACTION_MODEL:?set CODEACTION_MODEL}
+      - -c
+      - model_reasoning_effort=${CODEACTION_CODEX_EFFORT:?set CODEACTION_CODEX_EFFORT}
+      - --
+      - "${CODEACTION_PROMPT:?set CODEACTION_PROMPT}"
+    networks: [agentbus, egress]
+
+  reference-agent:
+    profiles: [reference]
+    image: "${CODEACTION_REFERENCE_AGENT_IMAGE:?set CODEACTION_REFERENCE_AGENT_IMAGE}"
+    user: "${CODEACTION_UID:?set CODEACTION_UID}:${CODEACTION_GID:?set CODEACTION_GID}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    environment:
+      CODEACTION_SIM_HOST: gateway
+      CODEACTION_SIM_PORT: "8765"
+      CODEACTION_EXTENSIONS_FILE: /run/codeaction/code/config/extensions.json
+      CODEACTION_MODEL_REGISTRY_FILE: /run/codeaction/code/config/models.json
+      CODEACTION_LOCAL_AGENT: "${CODEACTION_LOCAL_AGENT:-}"
+      CODEACTION_REFERENCE_MODEL_MODE: "${CODEACTION_REFERENCE_MODEL_MODE:-scripted}"
+      BENCH_REASONING_PROFILE: "${CODEACTION_REASONING_PROFILE:-disabled}"
+      CODEACTION_TASK_TEXT: "${CODEACTION_TASK_TEXT:?set CODEACTION_TASK_TEXT}"
+      CODEACTION_MAX_TOOL_CALLS: "${CODEACTION_MAX_TOOL_CALLS:?set CODEACTION_MAX_TOOL_CALLS}"
+      CODEACTION_WALL_BUDGET_S: "${CODEACTION_WALL_BUDGET_S:?set CODEACTION_WALL_BUDGET_S}"
+      CODEACTION_PHYSICAL_TIME_BUDGET_S: "${CODEACTION_PHYSICAL_TIME_BUDGET_S:?set CODEACTION_PHYSICAL_TIME_BUDGET_S}"
+      CODEACTION_RUN_CODE_MAX_INTERNAL_CALLS: "${CODEACTION_RUN_CODE_MAX_INTERNAL_CALLS:?set CODEACTION_RUN_CODE_MAX_INTERNAL_CALLS}"
+      CODEACTION_HARNESS_PARAMETERS_B64: "${CODEACTION_HARNESS_PARAMETERS_B64:?set CODEACTION_HARNESS_PARAMETERS_B64}"
+      CODEACTION_MODEL: "${CODEACTION_MODEL:?set CODEACTION_MODEL}"
+      CODEACTION_INTERFACE_PROFILE: "${CODEACTION_INTERFACE_PROFILE:-reference-mcp}"
+      CODEACTION_EXPECTED_DELIVERED_SHA256: "${CODEACTION_EXPECTED_DELIVERED_SHA256:?set CODEACTION_EXPECTED_DELIVERED_SHA256}"
+      CODEACTION_EXPECTED_SCAFFOLD_SHA256: "${CODEACTION_EXPECTED_SCAFFOLD_SHA256:?set CODEACTION_EXPECTED_SCAFFOLD_SHA256}"
+      CODEACTION_PROVIDER_ENV_FILE: /run/secrets/codeaction/provider.env
+      CODEACTION_PROVIDER_RATE_LIMIT_POLICY_B64: "${CODEACTION_PROVIDER_RATE_LIMIT_POLICY_B64:?set CODEACTION_PROVIDER_RATE_LIMIT_POLICY_B64}"
+      CODEACTION_PROVIDER_STATE_DIR: /run/codeaction/provider-state
+      BENCH_TOKEN_ESTIMATOR_ID: "${CODEACTION_TOKEN_ESTIMATOR_ID:-utf8-bytes-v1}"
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=256m
+      - /workspace:rw,noexec,nosuid,nodev,size=16m,mode=0700,uid=${CODEACTION_UID:?set CODEACTION_UID},gid=${CODEACTION_GID:?set CODEACTION_GID}
+    volumes:
+      - "${CODEACTION_REFERENCE_AGENT_CODE:?set CODEACTION_REFERENCE_AGENT_CODE}:/run/codeaction/code:ro"
+      - "${CODEACTION_PROVIDER_ENV_FILE:-/dev/null}:/run/secrets/codeaction/provider.env:ro"
+      - "${CODEACTION_PROVIDER_STATE_DIR:?set CODEACTION_PROVIDER_STATE_DIR}:/run/codeaction/provider-state"
+    networks: [agentbus, egress]
+
+  fixture-agent:
+    profiles: [fixture]
+    image: "${CODEACTION_FIXTURE_AGENT_IMAGE:?set CODEACTION_FIXTURE_AGENT_IMAGE}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    environment:
+      CODEACTION_SIM_HOST: gateway
+      CODEACTION_SIM_PORT: "8765"
+      CODEACTION_EXPECTED_DELIVERED_SHA256: "${CODEACTION_EXPECTED_DELIVERED_SHA256:?set CODEACTION_EXPECTED_DELIVERED_SHA256}"
+      CODEACTION_EXPECTED_ORDERED_NAMES: "${CODEACTION_EXPECTED_ORDERED_NAMES:?set CODEACTION_EXPECTED_ORDERED_NAMES}"
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=32m
+      - /workspace:rw,exec,nosuid,nodev,size=16m,mode=0700,uid=65532,gid=65532
+    volumes:
+      - "${CODEACTION_FIXTURE_AGENT_CODE:?set CODEACTION_FIXTURE_AGENT_CODE}:/run/codeaction/code:ro"
+    networks: [agentbus]
+
+  vendor-mcp-health:
+    profiles: [mcp-health]
+    image: "${CODEACTION_CLAUDE_AGENT_IMAGE:?set CODEACTION_CLAUDE_AGENT_IMAGE}"
+    user: "${CODEACTION_UID:?set CODEACTION_UID}:${CODEACTION_GID:?set CODEACTION_GID}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    entrypoint: [/usr/local/bin/mcp_health.sh]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=32m
+      - /workspace:rw,noexec,nosuid,nodev,size=16m,mode=0700,uid=${CODEACTION_UID:?set CODEACTION_UID},gid=${CODEACTION_GID:?set CODEACTION_GID}
+    volumes:
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}:/run/codeaction/code:ro"
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}/docker/entrypoint_agent.sh:/usr/local/bin/entrypoint_agent.sh:ro"
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}/docker/mcp_health.sh:/usr/local/bin/mcp_health.sh:ro"
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}/docker/mcp_health_settings.json:/usr/local/share/codeaction/mcp_health_settings.json:ro"
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}/docker/vendor_settings.json:/usr/local/share/codeaction/vendor_settings.json:ro"
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}/src/codeaction/agents/vendor/claude_isolated_exec.sh:/usr/local/bin/claude_isolated_exec.sh:ro"
+      - "${CODEACTION_CLAUDE_AGENT_CODE:?set CODEACTION_CLAUDE_AGENT_CODE}/src/codeaction/transport/tcp/client.py:/usr/local/bin/mcp_tcp_client.py:ro"
+      - "${CODEACTION_MCP_CONFIG:?set CODEACTION_MCP_CONFIG}:/run/codeaction/mcp.json:ro"
+      - "${CODEACTION_MCP_CONFIG:?set CODEACTION_MCP_CONFIG}:/workspace/.mcp.json:ro"
+    networks: [agentbus]
+
+  gateway:
+    image: "${CODEACTION_GATEWAY_IMAGE:?set CODEACTION_GATEWAY_IMAGE}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    environment:
+      CODEACTION_INTERFACE_PROFILE: "${CODEACTION_INTERFACE_PROFILE:-vendor-mcp-direct}"
+      CODEACTION_EXPECTED_DELIVERED_SHA256: "${CODEACTION_EXPECTED_DELIVERED_SHA256:-}"
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=32m
+    volumes:
+      - "${CODEACTION_GATEWAY_CODE:?set CODEACTION_GATEWAY_CODE}:/run/codeaction/code:ro"
+      - public-tools:/run/codeaction-public
+    networks: [control, agentbus, launchbus]
+
+  scratch-launcher:
+    profiles: [gateway-dev]
+    image: "${CODEACTION_LAUNCHER_IMAGE:?set CODEACTION_LAUNCHER_IMAGE}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    environment:
+      SCRATCH_CODE_DIR: "${CODEACTION_SCRATCH_CODE:?set CODEACTION_SCRATCH_CODE}"
+      SCRATCH_IMAGE: "${CODEACTION_SCRATCH_IMAGE_ID:?set CODEACTION_SCRATCH_IMAGE_ID}"
+      SCRATCH_TOOL_VOLUME: "codeaction-${CODEACTION_RUN_ID:?set CODEACTION_RUN_ID}-public-tools"
+      SCRATCH_WORKSPACE_VOLUME: "codeaction-${CODEACTION_RUN_ID:?set CODEACTION_RUN_ID}-agent-workspace"
+      SCRATCH_TIMEOUT_S: "60"
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777
+    volumes:
+      - "${CODEACTION_SCRATCH_LAUNCHER_CODE:?set CODEACTION_SCRATCH_LAUNCHER_CODE}:/run/codeaction/code:ro"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - agent-workspace:/run/codeaction-workspace:ro
+    networks: [launchbus]
+
+networks:
+  control:
+    internal: true
+  agentbus:
+    internal: true
+  launchbus:
+    internal: true
+  egress: {}
+
+volumes:
+  public-tools:
+    name: "codeaction-${CODEACTION_RUN_ID:?set CODEACTION_RUN_ID}-public-tools"
+  agent-workspace:
+    name: "codeaction-${CODEACTION_RUN_ID:?set CODEACTION_RUN_ID}-agent-workspace"

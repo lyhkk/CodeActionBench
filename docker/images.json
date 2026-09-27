@@ -1,0 +1,42 @@
+{
+  "images": {
+    "claude-agent": {
+      "environment": "a4e63c10e626532da79ff9c917014166931b31bf50d3136455e666368721a73c",
+      "image_id": "sha256:666b1348ac18a95548c33ac932a3c30597ffc9a4d866bfdcb7e0946fcb37dc6c",
+      "ref": "codeactionbench/codeaction-claude-agent@sha256:3cf248f2d24642d4add1f044fb3513b278c93dac1d1f82d77dd1cd238bb27c4e"
+    },
+    "codex-agent": {
+      "environment": "25d039675ba80b1285a817860b34120cb3a87ba7145c36f5ce0e2de6016da1db",
+      "image_id": "sha256:12d41790701ba32373722dde7a8b047c7c50b5a3e8066db03cd79d601462c0e0",
+      "ref": "codeactionbench/codeaction-codex-agent@sha256:820fd11a0ca92b5ad53a727e3e41aaee41a1571464857a872121363caa344805"
+    },
+    "fixture-agent": {
+      "environment": "01c5f10b8b1b5bcf86b726a8aef31995c51f73db8a6721fde388f05e7ff6f284",
+      "image_id": "sha256:338b54635a2d9edab4a1d6baf1ebf44698999dc11f5381e78f475897e60d9a7c",
+      "ref": "codeactionbench/codeaction-fixture-agent@sha256:3f2750a52b0851ea61dd126d0c179cb4349cf00e4f7f7f8eff2d3321318943bb"
+    },
+    "gateway": {
+      "environment": "5b84d89be622a3ec9deeb8ea957bdc4c9848ea8718742a114890e3d4ceb6a1df",
+      "image_id": "sha256:77995a97712d113bba280c092aa14b86fd2e474cb09a60944ad7e01a72223e2a",
+      "ref": "codeactionbench/codeaction-gateway@sha256:3ccecbbe37d4a6e027b8403c2b3b88ee4149c053d4070f5632ac05b2d125c11e"
+    },
+    "reference-agent": {
+      "environment": "9daf4f2df1aace93ba0b43b9d36ce22e3b363f6a58b4ffe5bb06e3792fb091f7",
+      "image_id": "sha256:9da1fb420bfcd3eb35842d8677b3403735ce897399268aa76ab9b4f08c7db378",
+      "ref": "codeactionbench/codeaction-reference-agent@sha256:08c0eb43c6e3230aac8f67ee0beb7228006ab35b7834f20ac8c24cbfac9d3047"
+    },
+    "sim": {
+      "environment": "e8af8ccd8b84e8fc1f5eaecc5aeaf7fcf859171e9efece6e9a06a30970ac2289",
+      "image_id": "sha256:d79860b311d75395b8ab0138bce6554b6bbca16021a6abed7e4179dde0c04e18",
+      "ref": "codeactionbench/codeaction-sim@sha256:77d8ef08b423b69be0ecdb6c7d8c40cd17f661a53e1e66b2521e14dd410e84f5"
+    },
+    "sim-base": {
+      "environment": "7f2c9ce8d07c349874c604df4526cda979aadde6c84db2c7f19c1e5c758ebc4e",
+      "image_id": "sha256:72e5d0d22e7a0bdce1035d90fb1430c9fc89c7406985ee5efe943002f48b69ee",
+      "ref": "codeactionbench/codeaction-sim-base@sha256:0792ea430aad90fad890bf0fcaa67cbf645a4cd5c2d113c344170aa2603d1691"
+    }
+  },
+  "platform": "linux/amd64",
+  "schema_version": "codeaction-images.v1",
+  "version": "v1.0.0"
+}

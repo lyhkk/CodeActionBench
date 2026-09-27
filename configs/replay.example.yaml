@@ -1,0 +1,6 @@
+# Optional reference replay. Edit only this list; each launch gets a new output directory.
+schema_version: 1
+options:
+  tasks:
+    - click_bell
+    - place_bread_skillet

@@ -1,0 +1,852 @@
+{
+  "registry_version": "0.7.0",
+  "schema_version": "0.1",
+  "_comment": [
+    "Non-secret model declarations are hashed into identity.comparison.model.",
+    "Credentials are resolved from a private 0600 file using the declared credential alias.",
+    "Models using an existing protocol can be added with a registry entry; capabilities.source",
+    "records the source of context and output limits. New protocols require an adapter.",
+    "Reasoning effort and returned reasoning text are separate settings. Each model declares",
+    "its supported profiles and capture channel. Anthropic thinking.display=summarized enables",
+    "summary text; omitted yields empty thinking text without disabling reasoning or its billing."
+  ],
+  "models": {
+    "qwen3.7-plus": {
+      "protocol": "openai-compatible",
+      "credential": "qwen",
+      "capabilities": {
+        "context_window_tokens": 1000000,
+        "max_output_tokens": 8192,
+        "token_estimator_id": "utf8-bytes-v1",
+        "source": "Benchmark reference-scaffold configuration in use since 2026-07."
+      },
+      "reasoning_capture": {
+        "channel": "reasoning_content",
+        "expected_rungs": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "note": "DashScope returns thinking in message.reasoning_content when enable_thinking is true; observed on every model turn in a benchmark run on 2026-08-07."
+      },
+      "default_reasoning_profile": "disabled",
+      "reasoning_profiles": {
+        "disabled": {
+          "id": "qwen3.7-plus-nonthinking-v2",
+          "reasoning": "disabled",
+          "temperature": null,
+          "extra_body": {
+            "enable_thinking": false
+          }
+        },
+        "low": {
+          "id": "qwen3.7-plus-thinking-low-v2",
+          "reasoning": "thinking-low",
+          "thinking_budget": 1024,
+          "temperature": null,
+          "extra_body": {
+            "enable_thinking": true,
+            "thinking_budget": 1024
+          }
+        },
+        "medium": {
+          "id": "qwen3.7-plus-thinking-medium-v2",
+          "reasoning": "thinking-medium",
+          "thinking_budget": 2048,
+          "temperature": null,
+          "extra_body": {
+            "enable_thinking": true,
+            "thinking_budget": 2048
+          }
+        },
+        "high": {
+          "id": "qwen3.7-plus-thinking-high-v2",
+          "reasoning": "thinking-high",
+          "thinking_budget": 4096,
+          "temperature": null,
+          "extra_body": {
+            "enable_thinking": true,
+            "thinking_budget": 4096
+          }
+        }
+      }
+    },
+    "qwen3.8-max": {
+      "protocol": "openai-compatible",
+      "credential": "qwen",
+      "transport": {
+        "id": "qwen3.8-buffered-long-response-v4",
+        "connect_timeout_s": 20,
+        "first_response_timeout_s": 600,
+        "stream_idle_timeout_s": 600,
+        "response_hard_timeout_s": 600,
+        "streaming": false,
+        "attempts": 2,
+        "retry": {
+          "provider_timeout": {
+            "delays_s": [],
+            "jitter_ratio": 0,
+            "max_attempts": 1
+          }
+        }
+      },
+      "capabilities": {
+        "context_window_tokens": 1000000,
+        "max_output_tokens": 131072,
+        "token_estimator_id": "utf8-bytes-v1",
+        "source": "Alibaba Cloud Model Studio / DashScope docs (read 2026-08-11): 1,000,000-token context, 131,072 max output tokens, text+image+video input, function calling supported."
+      },
+      "reasoning_capture": {
+        "channel": "reasoning_content",
+        "expected_rungs": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "note": "DashScope returns thinking on reasoning_content. qwen3.8-max preserve_thinking requires every prior assistant reasoning_content to be replayed within the same episode; the adapter keeps that replay state episode-local. Native effort budgets are low=4096, medium=16384, xhigh=262144, and the benchmark high rung maps to native xhigh."
+      },
+      "default_reasoning_profile": "medium",
+      "reasoning_profiles": {
+        "low": {
+          "id": "qwen3.8-max-thinking-low-preserved-v4",
+          "reasoning": "thinking-low",
+          "requested_output_tokens": 131072,
+          "output_token_parameter": "max_completion_tokens",
+          "temperature": null,
+          "extra_body": {
+            "reasoning_effort": "low",
+            "preserve_thinking": true
+          }
+        },
+        "medium": {
+          "id": "qwen3.8-max-thinking-medium-preserved-v4",
+          "reasoning": "thinking-medium",
+          "requested_output_tokens": 131072,
+          "output_token_parameter": "max_completion_tokens",
+          "temperature": null,
+          "extra_body": {
+            "reasoning_effort": "medium",
+            "preserve_thinking": true
+          }
+        },
+        "high": {
+          "id": "qwen3.8-max-thinking-xhigh-preserved-v4",
+          "reasoning": "thinking-xhigh",
+          "requested_output_tokens": 131072,
+          "output_token_parameter": "max_completion_tokens",
+          "temperature": null,
+          "extra_body": {
+            "reasoning_effort": "xhigh",
+            "preserve_thinking": true
+          }
+        }
+      }
+    },
+    "claude-opus-5": {
+      "protocol": "anthropic",
+      "credential": "anthropic",
+      "transport": {
+        "id": "claude-opus-5-buffered-long-response-v3",
+        "connect_timeout_s": 20,
+        "first_response_timeout_s": 600,
+        "stream_idle_timeout_s": 600,
+        "response_hard_timeout_s": 600,
+        "streaming": false,
+        "attempts": 3,
+        "retry": {
+          "provider_timeout": {
+            "delays_s": [],
+            "jitter_ratio": 0,
+            "max_attempts": 1
+          }
+        }
+      },
+      "capabilities": {
+        "context_window_tokens": 1000000,
+        "max_output_tokens": 128000,
+        "token_estimator_id": "utf8-bytes-v1",
+        "source": "Anthropic Models API, GET /v1/models/claude-opus-5, queried 2026-08-08: max_input_tokens=1000000, max_tokens=128000, image input and efforts low/medium/high/xhigh/max. The live capability record declares the 1M context without a beta-header requirement."
+      },
+      "reasoning_capture": {
+        "channel": "thinking_blocks",
+        "expected_rungs": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "note": "Anthropic thinking blocks contain summary text when thinking.display is 'summarized'; the Opus 5 default is 'omitted', which yields empty text. Raw chain of thought is not returned."
+      },
+      "default_reasoning_profile": "disabled",
+      "reasoning_profiles": {
+        "disabled": {
+          "id": "claude-opus-5-nonthinking-v1",
+          "reasoning": "disabled",
+          "temperature": null,
+          "extra_body": {
+            "thinking": {
+              "type": "disabled"
+            }
+          }
+        },
+        "low": {
+          "id": "claude-opus-5-thinking-low-v2",
+          "reasoning": "thinking-low",
+          "effort": "low",
+          "temperature": null,
+          "extra_body": {
+            "thinking": {
+              "type": "adaptive",
+              "display": "summarized"
+            },
+            "output_config": {
+              "effort": "low"
+            }
+          }
+        },
+        "medium": {
+          "id": "claude-opus-5-thinking-medium-v2",
+          "reasoning": "thinking-medium",
+          "effort": "medium",
+          "temperature": null,
+          "extra_body": {
+            "thinking": {
+              "type": "adaptive",
+              "display": "summarized"
+            },
+            "output_config": {
+              "effort": "medium"
+            }
+          }
+        },
+        "high": {
+          "id": "claude-opus-5-thinking-high-v2",
+          "reasoning": "thinking-high",
+          "effort": "high",
+          "temperature": null,
+          "extra_body": {
+            "thinking": {
+              "type": "adaptive",
+              "display": "summarized"
+            },
+            "output_config": {
+              "effort": "high"
+            }
+          }
+        }
+      }
+    },
+    "claude-sonnet-5": {
+      "protocol": "anthropic",
+      "credential": "anthropic",
+      "transport": {
+        "id": "claude-sonnet-5-buffered-long-response-v2",
+        "connect_timeout_s": 20,
+        "first_response_timeout_s": 600,
+        "stream_idle_timeout_s": 600,
+        "response_hard_timeout_s": 600,
+        "streaming": false,
+        "attempts": 3,
+        "retry": {
+          "provider_timeout": {
+            "delays_s": [],
+            "jitter_ratio": 0,
+            "max_attempts": 1
+          }
+        }
+      },
+      "capabilities": {
+        "context_window_tokens": 1000000,
+        "max_output_tokens": 128000,
+        "token_estimator_id": "utf8-bytes-v1",
+        "source": "Anthropic model documentation (platform.claude.com models overview, read 2026-08-08): 1M context, 128K maximum output; adaptive thinking is enabled by default."
+      },
+      "reasoning_capture": {
+        "channel": "thinking_blocks",
+        "expected_rungs": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "note": "Sonnet 5 defaults thinking.display to 'omitted'. Set 'summarized' to return thinking summary text."
+      },
+      "default_reasoning_profile": "disabled",
+      "reasoning_profiles": {
+        "disabled": {
+          "id": "claude-sonnet-5-nonthinking-v1",
+          "reasoning": "disabled",
+          "temperature": null,
+          "extra_body": {
+            "thinking": {
+              "type": "disabled"
+            }
+          }
+        },
+        "low": {
+          "id": "claude-sonnet-5-thinking-low-v1",
+          "reasoning": "thinking-low",
+          "effort": "low",
+          "temperature": null,
+          "extra_body": {
+            "thinking": {
+              "type": "adaptive",
+              "display": "summarized"
+            },
+            "output_config": {
+              "effort": "low"
+            }
+          }
+        },
+        "medium": {
+          "id": "claude-sonnet-5-thinking-medium-v1",
+          "reasoning": "thinking-medium",
+          "effort": "medium",
+          "temperature": null,
+          "extra_body": {
+            "thinking": {
+              "type": "adaptive",
+              "display": "summarized"
+            },
+            "output_config": {
+              "effort": "medium"
+            }
+          }
+        },
+        "high": {
+          "id": "claude-sonnet-5-thinking-high-v1",
+          "reasoning": "thinking-high",
+          "effort": "high",
+          "temperature": null,
+          "extra_body": {
+            "thinking": {
+              "type": "adaptive",
+              "display": "summarized"
+            },
+            "output_config": {
+              "effort": "high"
+            }
+          }
+        }
+      }
+    },
+    "claude-fable-5": {
+      "protocol": "anthropic",
+      "credential": "anthropic",
+      "capabilities": {
+        "context_window_tokens": 1000000,
+        "max_output_tokens": 128000,
+        "token_estimator_id": "utf8-bytes-v1",
+        "source": "Anthropic model documentation (platform.claude.com models overview, read 2026-08-08): 1M default and maximum context, 128K maximum output. Requires 30-day data retention; requests from zero-retention organizations return HTTP 400."
+      },
+      "reasoning_capture": {
+        "channel": "thinking_blocks",
+        "expected_rungs": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "note": "Thinking is always on and the raw chain of thought is never returned; display 'summarized' yields a summary, and the default 'omitted' yields blocks whose text is an empty string."
+      },
+      "default_reasoning_profile": "high",
+      "reasoning_profiles": {
+        "low": {
+          "id": "claude-fable-5-thinking-low-v1",
+          "reasoning": "thinking-low",
+          "effort": "low",
+          "temperature": null,
+          "extra_body": {
+            "thinking": {
+              "type": "adaptive",
+              "display": "summarized"
+            },
+            "output_config": {
+              "effort": "low"
+            }
+          }
+        },
+        "medium": {
+          "id": "claude-fable-5-thinking-medium-v1",
+          "reasoning": "thinking-medium",
+          "effort": "medium",
+          "temperature": null,
+          "extra_body": {
+            "thinking": {
+              "type": "adaptive",
+              "display": "summarized"
+            },
+            "output_config": {
+              "effort": "medium"
+            }
+          }
+        },
+        "high": {
+          "id": "claude-fable-5-thinking-high-v1",
+          "reasoning": "thinking-high",
+          "effort": "high",
+          "temperature": null,
+          "extra_body": {
+            "thinking": {
+              "type": "adaptive",
+              "display": "summarized"
+            },
+            "output_config": {
+              "effort": "high"
+            }
+          }
+        }
+      }
+    },
+    "kimi-k3": {
+      "protocol": "openai-compatible",
+      "credential": "kimi",
+      "transport": {
+        "id": "kimi-k3-streamed-v1",
+        "connect_timeout_s": 20,
+        "first_response_timeout_s": 90,
+        "stream_idle_timeout_s": 90,
+        "response_hard_timeout_s": 600,
+        "streaming": true,
+        "attempts": 3
+      },
+      "capabilities": {
+        "context_window_tokens": 1000000,
+        "max_output_tokens": 131072,
+        "token_estimator_id": "utf8-bytes-v1",
+        "source": "Moonshot platform documentation (platform.kimi.ai models and chat API, read 2026-08-08): 1M-token context, native visual understanding and max_tokens default 131072. The documented maximum is 1048576; this registry uses the default because max_output_tokens must be below the context window."
+      },
+      "reasoning_capture": {
+        "channel": "reasoning_content",
+        "expected_rungs": [
+          "low",
+          "high"
+        ],
+        "note": "Moonshot message.reasoning_content was confirmed in a live response on 2026-08-08. Kimi K3 always reasons and supports native low/high/max effort. This benchmark declares low/high; disabled and medium are unsupported, and native max is outside the task-card ladder."
+      },
+      "default_reasoning_profile": "high",
+      "reasoning_profiles": {
+        "low": {
+          "id": "kimi-k3-thinking-low-native-output-v4",
+          "reasoning": "thinking-low",
+          "effort": "low",
+          "temperature": null,
+          "replay_reasoning_content": true,
+          "prompt_cache_key_scope": "episode",
+          "extra_body": {
+            "reasoning_effort": "low"
+          }
+        },
+        "high": {
+          "id": "kimi-k3-thinking-high-native-output-v4",
+          "reasoning": "thinking-high",
+          "effort": "high",
+          "temperature": null,
+          "replay_reasoning_content": true,
+          "prompt_cache_key_scope": "episode",
+          "extra_body": {
+            "reasoning_effort": "high"
+          }
+        }
+      }
+    },
+    "gpt-5.6": {
+      "protocol": "openai-responses",
+      "credential": "openai",
+      "transport": {
+        "id": "gpt-5.6-buffered-long-response-v2",
+        "connect_timeout_s": 20,
+        "first_response_timeout_s": 600,
+        "stream_idle_timeout_s": 600,
+        "response_hard_timeout_s": 600,
+        "streaming": false,
+        "attempts": 3,
+        "retry": {
+          "provider_timeout": {
+            "delays_s": [],
+            "jitter_ratio": 0,
+            "max_attempts": 1
+          }
+        }
+      },
+      "capabilities": {
+        "context_window_tokens": 1050000,
+        "max_output_tokens": 128000,
+        "token_estimator_id": "utf8-bytes-v1",
+        "source": "OpenAI model reference (developers.openai.com/api/docs/models/gpt-5.6-sol, read 2026-08-08): 1,050,000-token context, 128,000 maximum output, text/image input and function calling. The published gpt-5.6 alias routes to GPT-5.6 Sol."
+      },
+      "reasoning_capture": {
+        "channel": "responses_summary",
+        "expected_rungs": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "note": "OpenAI's reasoning guide documents summaries on the Responses API as the summary array of a reasoning output item. Chat Completions bills reasoning tokens as output without returning reasoning text. Neither protocol exposes raw chain of thought."
+      },
+      "default_reasoning_profile": "high",
+      "reasoning_profiles": {
+        "disabled": {
+          "id": "gpt-5.6-nonthinking-v1",
+          "reasoning": "disabled",
+          "temperature": null,
+          "extra_body": {
+            "reasoning": {
+              "effort": "none"
+            }
+          }
+        },
+        "low": {
+          "id": "gpt-5.6-thinking-low-encrypted-replay-v2",
+          "reasoning": "thinking-low",
+          "effort": "low",
+          "temperature": null,
+          "reasoning_replay_evidence": "openai-encrypted-v1",
+          "extra_body": {
+            "reasoning": {
+              "effort": "low",
+              "summary": "auto"
+            }
+          }
+        },
+        "medium": {
+          "id": "gpt-5.6-thinking-medium-encrypted-replay-v2",
+          "reasoning": "thinking-medium",
+          "effort": "medium",
+          "temperature": null,
+          "reasoning_replay_evidence": "openai-encrypted-v1",
+          "extra_body": {
+            "reasoning": {
+              "effort": "medium",
+              "summary": "auto"
+            }
+          }
+        },
+        "high": {
+          "id": "gpt-5.6-thinking-high-encrypted-replay-v2",
+          "reasoning": "thinking-high",
+          "effort": "high",
+          "temperature": null,
+          "reasoning_replay_evidence": "openai-encrypted-v1",
+          "extra_body": {
+            "reasoning": {
+              "effort": "high",
+              "summary": "auto"
+            }
+          }
+        }
+      }
+    },
+    "gpt-6-astra": {
+      "protocol": "openai-responses",
+      "credential": "openai",
+      "transport": {
+        "id": "gpt-6-astra-buffered-long-response-v1",
+        "connect_timeout_s": 20,
+        "first_response_timeout_s": 600,
+        "stream_idle_timeout_s": 600,
+        "response_hard_timeout_s": 600,
+        "streaming": false,
+        "attempts": 3,
+        "retry": {
+          "provider_timeout": {
+            "delays_s": [],
+            "jitter_ratio": 0,
+            "max_attempts": 1
+          }
+        }
+      },
+      "capabilities": {
+        "context_window_tokens": 1050000,
+        "max_output_tokens": 128000,
+        "token_estimator_id": "utf8-bytes-v1",
+        "source": "OpenAI model reference (developers.openai.com/api/docs/models/gpt-6-astra, read 2026-09-10): Responses API limits are 922,000 input plus 128,000 output, 1,050,000 total; text/image input; efforts low/medium/high/xhigh/max; knowledge cutoff 2026-04-30. These are the limits declared here. The model record served to Codex 0.154.0 (models_cache.json, fetched 2026-09-10) instead declares context_window=272000, max_context_window=872000 and effective_context_window_percent=95. The benchmark CLI path sets model_context_window=872000 and compacts against that window. The 272,000-token input threshold also triggers 2x input and 1.5x output pricing for the entire request."
+      },
+      "reasoning_capture": {
+        "channel": "responses_summary",
+        "expected_rungs": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ],
+        "note": "The Codex model record defaults default_reasoning_summary to 'none'. Request summary text with model_reasoning_summary on the CLI path or reasoning.summary on Responses. reasoning_output_tokens in turn.completed measures token usage, not returned text. Neither path returns raw chain of thought."
+      },
+      "default_reasoning_profile": "high",
+      "reasoning_profiles": {
+        "low": {
+          "id": "gpt-6-astra-thinking-low-encrypted-replay-v1",
+          "reasoning": "thinking-low",
+          "effort": "low",
+          "temperature": null,
+          "reasoning_replay_evidence": "openai-encrypted-v1",
+          "extra_body": {
+            "reasoning": {
+              "effort": "low",
+              "summary": "auto"
+            }
+          }
+        },
+        "medium": {
+          "id": "gpt-6-astra-thinking-medium-encrypted-replay-v1",
+          "reasoning": "thinking-medium",
+          "effort": "medium",
+          "temperature": null,
+          "reasoning_replay_evidence": "openai-encrypted-v1",
+          "extra_body": {
+            "reasoning": {
+              "effort": "medium",
+              "summary": "auto"
+            }
+          }
+        },
+        "high": {
+          "id": "gpt-6-astra-thinking-high-encrypted-replay-v1",
+          "reasoning": "thinking-high",
+          "effort": "high",
+          "temperature": null,
+          "reasoning_replay_evidence": "openai-encrypted-v1",
+          "extra_body": {
+            "reasoning": {
+              "effort": "high",
+              "summary": "auto"
+            }
+          }
+        },
+        "xhigh": {
+          "id": "gpt-6-astra-thinking-xhigh-encrypted-replay-v1",
+          "reasoning": "thinking-xhigh",
+          "effort": "xhigh",
+          "temperature": null,
+          "reasoning_replay_evidence": "openai-encrypted-v1",
+          "extra_body": {
+            "reasoning": {
+              "effort": "xhigh",
+              "summary": "auto"
+            }
+          }
+        }
+      }
+    },
+    "gemini-3.6-flash": {
+      "protocol": "google-generate-content",
+      "credential": "google-gemini",
+      "transport": {
+        "id": "gemini-capacity-backoff-long-response-v4",
+        "connect_timeout_s": 20,
+        "first_response_timeout_s": 600,
+        "stream_idle_timeout_s": 600,
+        "response_hard_timeout_s": 600,
+        "streaming": false,
+        "attempts": 4,
+        "retry": {
+          "provider_timeout": {
+            "delays_s": [],
+            "jitter_ratio": 0,
+            "max_attempts": 1
+          },
+          "provider_server_error": {
+            "delays_s": [
+              15,
+              45,
+              120
+            ],
+            "jitter_ratio": 0.2
+          }
+        },
+        "server_error_cooldown": {
+          "after_consecutive": 3,
+          "min_s": 120,
+          "max_s": 300
+        }
+      },
+      "capabilities": {
+        "context_window_tokens": 1048576,
+        "max_output_tokens": 65536,
+        "token_estimator_id": "utf8-bytes-v1",
+        "source": "Gemini API model page (ai.google.dev/gemini-api/docs/models/gemini-3.6-flash, read 2026-08-10): stable model with 1,048,576 input / 65,536 output tokens, text/image/video/audio/PDF input and function calling. Native GenerateContent preserves thought parts and function-call signatures. Caching is implicit and provider-managed, as documented for Gemini 2.5 and newer stateless requests; growing history in measured 43-69-turn episodes reduced the share covered by a fixed explicit CachedContent prefix."
+      },
+      "reasoning_capture": {
+        "channel": "thinking_blocks",
+        "expected_rungs": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "note": "Native GenerateContent returns summaries as response parts with thought=true and returns thoughtsTokenCount in usageMetadata. Function-call parts also carry a thoughtSignature that must be replayed byte-for-byte; the adapter keeps those native parts only inside the same episode and records only the summary text in reasoning_content."
+      },
+      "default_reasoning_profile": "high",
+      "reasoning_profiles": {
+        "low": {
+          "id": "gemini-3.6-flash-thinking-low-native-implicit-v4",
+          "reasoning": "thinking-low",
+          "effort": "low",
+          "temperature": null,
+          "cache": {
+            "mode": "implicit-provider-managed-v1",
+            "prefix": "provider_matched_common_prefix",
+            "client_breakpoint": false
+          },
+          "extra_body": {
+            "thinkingConfig": {
+              "thinkingLevel": "low",
+              "includeThoughts": true
+            }
+          }
+        },
+        "medium": {
+          "id": "gemini-3.6-flash-thinking-medium-native-implicit-v4",
+          "reasoning": "thinking-medium",
+          "effort": "medium",
+          "temperature": null,
+          "cache": {
+            "mode": "implicit-provider-managed-v1",
+            "prefix": "provider_matched_common_prefix",
+            "client_breakpoint": false
+          },
+          "extra_body": {
+            "thinkingConfig": {
+              "thinkingLevel": "medium",
+              "includeThoughts": true
+            }
+          }
+        },
+        "high": {
+          "id": "gemini-3.6-flash-thinking-high-native-implicit-v4",
+          "reasoning": "thinking-high",
+          "effort": "high",
+          "temperature": null,
+          "cache": {
+            "mode": "implicit-provider-managed-v1",
+            "prefix": "provider_matched_common_prefix",
+            "client_breakpoint": false
+          },
+          "extra_body": {
+            "thinkingConfig": {
+              "thinkingLevel": "high",
+              "includeThoughts": true
+            }
+          }
+        }
+      }
+    },
+    "grok-4.5": {
+      "protocol": "openai-compatible",
+      "credential": "xai",
+      "capabilities": {
+        "context_window_tokens": 500000,
+        "max_output_tokens": 8192,
+        "token_estimator_id": "utf8-bytes-v1",
+        "source": "xAI model docs (docs.x.ai/docs/models/grok-4.5, read 2026-08-10): 500,000-token context, text+image input, function calling supported."
+      },
+      "reasoning_capture": {
+        "channel": "reasoning_content",
+        "expected_rungs": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "note": "xAI Grok 4.5 supports configurable reasoning effort levels (low, medium, high). xAI requires encrypted reasoning_content from prior assistant turns to be replayed for reasoning continuity and prompt-cache hits; the adapter keeps it episode-local."
+      },
+      "default_reasoning_profile": "high",
+      "reasoning_profiles": {
+        "low": {
+          "id": "grok-4.5-thinking-low-replayed-v2",
+          "reasoning": "thinking-low",
+          "effort": "low",
+          "replay_reasoning_content": true,
+          "temperature": null,
+          "extra_body": {
+            "reasoning_effort": "low"
+          }
+        },
+        "medium": {
+          "id": "grok-4.5-thinking-medium-replayed-v2",
+          "reasoning": "thinking-medium",
+          "effort": "medium",
+          "replay_reasoning_content": true,
+          "temperature": null,
+          "extra_body": {
+            "reasoning_effort": "medium"
+          }
+        },
+        "high": {
+          "id": "grok-4.5-thinking-high-replayed-v2",
+          "reasoning": "thinking-high",
+          "effort": "high",
+          "replay_reasoning_content": true,
+          "temperature": null,
+          "extra_body": {
+            "reasoning_effort": "high"
+          }
+        }
+      }
+    },
+    "grok-4.6": {
+      "protocol": "openai-compatible",
+      "credential": "xai",
+      "transport": {
+        "id": "grok-4.6-streamed-long-reasoning-v2",
+        "connect_timeout_s": 20,
+        "first_response_timeout_s": 300,
+        "stream_idle_timeout_s": 300,
+        "response_hard_timeout_s": 600,
+        "streaming": true,
+        "attempts": 3,
+        "retry": {
+          "provider_timeout": {
+            "delays_s": [],
+            "jitter_ratio": 0,
+            "max_attempts": 1
+          }
+        }
+      },
+      "capabilities": {
+        "context_window_tokens": 500000,
+        "max_output_tokens": 8192,
+        "token_estimator_id": "utf8-bytes-v1",
+        "source": "xAI authenticated Models API (api.x.ai/v1/language-models/grok-4.6, queried 2026-08-14): 500,000-token context, text+image input. A bounded Chat Completions probe confirmed reasoning_effort=high and reasoning_content."
+      },
+      "reasoning_capture": {
+        "channel": "reasoning_content",
+        "expected_rungs": [
+          "high"
+        ],
+        "note": "The authenticated xAI Chat Completions endpoint accepts reasoning_effort=high and returns reasoning_content for Grok 4.6. xAI requires encrypted reasoning_content from prior assistant turns to be replayed for reasoning continuity and prompt-cache hits; the adapter keeps it episode-local."
+      },
+      "default_reasoning_profile": "high",
+      "reasoning_profiles": {
+        "high": {
+          "id": "grok-4.6-thinking-high-replayed-v2",
+          "reasoning": "thinking-high",
+          "effort": "high",
+          "replay_reasoning_content": true,
+          "temperature": null,
+          "extra_body": {
+            "reasoning_effort": "high"
+          }
+        }
+      }
+    },
+    "scripted-model": {
+      "protocol": "scripted",
+      "credential": null,
+      "capabilities": {
+        "context_window_tokens": 1000000,
+        "max_output_tokens": 8192,
+        "token_estimator_id": "utf8-bytes-v1",
+        "source": "offline fixture; no endpoint is contacted"
+      },
+      "reasoning_capture": {
+        "channel": "none",
+        "expected_rungs": [],
+        "note": "offline fixture; it replays scripted tool calls and has no reasoning to return."
+      },
+      "default_reasoning_profile": "none",
+      "reasoning_profiles": {
+        "none": {
+          "id": "scripted-v1",
+          "reasoning": "none",
+          "extra_body": {}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codeaction"
+version = "1.0.0.dev0"
+description = "Code-driven, closed-loop embodied action runtime and benchmark"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy",
+  "PyYAML",
+  "packaging",
+]
+
+[project.scripts]
+codeaction = "codeaction.cli.main:main"
+codeaction-tool = "codeaction.cli.tool:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"codeaction" = ["component_files.json"]
+"codeaction.providers" = ["models/*.json"]
+"codeaction.reporting" = ["public_assets/*"]

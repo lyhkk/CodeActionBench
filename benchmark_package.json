@@ -1,0 +1,14 @@
+{
+  "package_version": "1.0.0.dev0",
+  "method": "CodeAction",
+  "benchmark": "CodeAction Benchmark",
+  "robotwin_commit": "0aeea2d669c0f8516f4d5785f0aa33ba812c14b4",
+  "source_state": "development",
+  "contracts": {
+    "transcript_schema": "3.0",
+    "identity_schema": "0.3",
+    "submission_manifest_schema": "submission-manifest.v1",
+    "submission_results_schema": "submission-results.v1",
+    "solution_summary_schema": "codeaction-solution-summary.v1"
+  }
+}

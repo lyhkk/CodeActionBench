@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0",
+  "quota_groups": {
+    "anthropic": {
+      "request_windows": [
+        {
+          "limit": 10,
+          "period_s": 60
+        }
+      ],
+      "token_windows": [
+        {
+          "field": "total_tokens",
+          "limit": 100000,
+          "period_s": 60
+        }
+      ]
+    },
+    "openai": {
+      "request_windows": [
+        {
+          "limit": 10,
+          "period_s": 60
+        }
+      ],
+      "token_windows": [
+        {
+          "field": "total_tokens",
+          "limit": 100000,
+          "period_s": 60
+        }
+      ]
+    },
+    "google-gemini": {
+      "request_windows": [
+        {
+          "limit": 10,
+          "period_s": 60
+        }
+      ],
+      "token_windows": [
+        {
+          "field": "total_tokens",
+          "limit": 100000,
+          "period_s": 60
+        }
+      ]
+    },
+    "xai": {
+      "request_windows": [
+        {
+          "limit": 10,
+          "period_s": 60
+        }
+      ],
+      "token_windows": [
+        {
+          "field": "total_tokens",
+          "limit": 100000,
+          "period_s": 60
+        }
+      ]
+    },
+    "kimi": {
+      "request_windows": [
+        {
+          "limit": 10,
+          "period_s": 60
+        }
+      ],
+      "token_windows": [
+        {
+          "field": "total_tokens",
+          "limit": 100000,
+          "period_s": 60
+        }
+      ]
+    },
+    "qwen": {
+      "request_windows": [
+        {
+          "limit": 10,
+          "period_s": 60
+        }
+      ],
+      "token_windows": [
+        {
+          "field": "total_tokens",
+          "limit": 100000,
+          "period_s": 60
+        }
+      ]
+    }
+  }
+}

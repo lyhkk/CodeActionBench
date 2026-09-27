@@ -1,0 +1,13 @@
+schema_version: 1
+options:
+  tasks:
+  - click_bell_custom
+  attempts: 1
+  gpus:
+  - 0
+  model:
+  - local_example
+  task_pack: ../examples/tasks
+  extensions:
+  - ../examples/extensions/agent.yaml
+  - ../examples/extensions/verifier.yaml

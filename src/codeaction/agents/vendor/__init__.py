@@ -1,0 +1,1 @@
+"""Vendor-agent isolation helpers."""

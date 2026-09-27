@@ -1,0 +1,7 @@
+schema_version: 1
+extensions:
+  - kind: provider
+    name: local_provider
+    source: .
+    files: [provider.py]
+    entrypoint: provider:create

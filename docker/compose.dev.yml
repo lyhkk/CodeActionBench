@@ -1,0 +1,5 @@
+services:
+  sim:
+    volumes:
+      - "${CODEACTION_SOURCE_ROOT:?set CODEACTION_SOURCE_ROOT}:/opt/codeaction:ro"
+      - "${CODEACTION_SOURCE_ROOT:?set CODEACTION_SOURCE_ROOT}/backend/robotwin:/opt/robotwin:ro"

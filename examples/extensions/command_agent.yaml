@@ -1,0 +1,8 @@
+schema_version: 1
+extensions:
+  - kind: agent
+    name: command_example
+    mode: command
+    source: .
+    files: [command_agent.py]
+    entrypoint: command_agent:create

@@ -1,0 +1,10 @@
+.git
+**/__pycache__
+**/*.pyc
+**/*.egg-info
+assets
+backend/robotwin/assets
+runs
+.release
+secrets/*.env
+secrets/*.sh

@@ -1,0 +1,7 @@
+schema_version: 1
+options:
+  model: [local_example]
+  tasks: [click_bell]
+  attempts: 1
+  gpus: [0]
+  extensions: [../examples/extensions/agent.yaml]

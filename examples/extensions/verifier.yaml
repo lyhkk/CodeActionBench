@@ -1,0 +1,7 @@
+schema_version: 1
+extensions:
+  - kind: verifier
+    name: local_success
+    source: .
+    files: [verifier.py]
+    entrypoint: verifier:verify

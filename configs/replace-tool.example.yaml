@@ -1,0 +1,13 @@
+schema_version: 1
+options:
+  tasks:
+  - click_bell
+  attempts: 1
+  gpus:
+  - 0
+  model:
+  - tool_example
+  extensions:
+  - ../examples/extensions/tool_agent.yaml
+  - ../examples/extensions/tool.yaml
+  - ../examples/extensions/replace-tool.yaml

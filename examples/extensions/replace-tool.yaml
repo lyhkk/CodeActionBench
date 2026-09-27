@@ -1,0 +1,264 @@
+schema_version: 1
+extensions:
+- kind: tool
+  name: get_world_frame
+  replace: true
+  source: .
+  files:
+  - world_frame.py
+  entrypoint: world_frame:read
+  description: 'World-frame axis definition (meters) + a fresh head-camera view with
+    a labelled +X/+Y/+Z screen-space legend. The legend is non-metric: its pixel positions,
+    arrow angles, and lengths are display-only, are not projected world points, and
+    provide no world-to-pixel correspondence. The required annotation separately reports
+    origin, endpoint, label, and complete-overlay visibility.
+
+
+    Returns: Annotated Observation. Convention: E=[R|t] world-to-camera, p_cam=R@p_world+t,
+    column vectors, camera +z forward; [u,v] top-left zero-based; size_hw=[H,W]; distortion=none.
+
+    Result keys (dict): obs_id, camera, cam_pose_snapshot{available, K, E, size_hw,
+    freshness, read_failures, convention}, tick, annotation{tool, axes, units, prompt_text,
+    legend, rendering_space, metric_scale, world_to_pixel_correspondence, display_note,
+    render_attempted_axes, glyph}, image.'
+  returns: 'Annotated Observation. Convention: E=[R|t] world-to-camera, p_cam=R@p_world+t,
+    column vectors, camera +z forward; [u,v] top-left zero-based; size_hw=[H,W]; distortion=none.'
+  input_schema:
+    type: object
+    properties: {}
+    required: []
+    additionalProperties: false
+  output_schema:
+    type: object
+    properties:
+      obs_id: &id001
+        type: string
+      camera: *id001
+      cam_pose_snapshot:
+        type: object
+        properties:
+          available:
+            const: true
+          K:
+            type: array
+            items:
+              type: array
+              items: &id002
+                type: number
+              minItems: 3
+              maxItems: 3
+            minItems: 3
+            maxItems: 3
+          E:
+            type: array
+            items:
+              type: array
+              items: *id002
+              minItems: 4
+              maxItems: 4
+            minItems: 3
+            maxItems: 3
+          size_hw:
+            type: array
+            items: &id003
+              type: integer
+            minItems: 2
+            maxItems: 2
+          freshness:
+            const: call_time_current
+          read_failures:
+            type: array
+            items: *id001
+            minItems: 0
+            maxItems: 0
+          convention:
+            type: object
+            properties:
+              extrinsic:
+                const: world_to_camera p_cam=R@p_world+t; columns
+              camera_axes:
+                const: +x right; +y down; +z forward
+              pixel_coordinates:
+                const: '[u,v] top-left; zero-based; u right; v down; integer=pixel
+                  center'
+              image_size:
+                const: size_hw=[H,W]; valid iff 0<=u<W,0<=v<H
+              distortion:
+                const: none; RGB pinhole for K
+            required:
+            - extrinsic
+            - camera_axes
+            - pixel_coordinates
+            - image_size
+            - distortion
+            additionalProperties: false
+        required:
+        - available
+        - K
+        - E
+        - size_hw
+        - freshness
+        - read_failures
+        - convention
+        additionalProperties: false
+      tick: *id003
+      annotation:
+        type: object
+        properties:
+          tool:
+            const: get_world_frame
+          axes:
+            type: object
+            properties:
+              +x:
+                const: right
+              -x:
+                const: left
+              +y:
+                const: forward
+              -y:
+                const: backward
+              +z:
+                const: up
+              -z:
+                const: down
+            required:
+            - +x
+            - -x
+            - +y
+            - -y
+            - +z
+            - -z
+            additionalProperties: false
+          units:
+            const: meters
+          prompt_text: *id001
+          legend:
+            type: object
+            properties:
+              +x: *id001
+              +y: *id001
+              +z: *id001
+            required:
+            - +x
+            - +y
+            - +z
+            additionalProperties: false
+          rendering_space:
+            const: screen_space
+          metric_scale:
+            const: false
+          world_to_pixel_correspondence:
+            const: false
+          display_note: *id001
+          render_attempted_axes:
+            const:
+            - +x
+            - +y
+            - +z
+          glyph:
+            type: object
+            properties:
+              origin_px:
+                type: array
+                items: *id003
+                minItems: 2
+                maxItems: 2
+              endpoints_px:
+                type: object
+                properties:
+                  +x:
+                    type: array
+                    items: *id003
+                    minItems: 2
+                    maxItems: 2
+                  +y:
+                    type: array
+                    items: *id003
+                    minItems: 2
+                    maxItems: 2
+                  +z:
+                    type: array
+                    items: *id003
+                    minItems: 2
+                    maxItems: 2
+                required:
+                - +x
+                - +y
+                - +z
+                additionalProperties: false
+              label_boxes_xyxy:
+                type: object
+                properties:
+                  +x:
+                    type: array
+                    items: *id003
+                    minItems: 4
+                    maxItems: 4
+                  +y:
+                    type: array
+                    items: *id003
+                    minItems: 4
+                    maxItems: 4
+                  +z:
+                    type: array
+                    items: *id003
+                    minItems: 4
+                    maxItems: 4
+                required:
+                - +x
+                - +y
+                - +z
+                additionalProperties: false
+              visibility:
+                type: object
+                properties:
+                  origin_in_frame: &id004
+                    type: boolean
+                  endpoints_in_frame: &id005
+                    type: object
+                    properties:
+                      +x: *id004
+                      +y: *id004
+                      +z: *id004
+                    required:
+                    - +x
+                    - +y
+                    - +z
+                    additionalProperties: false
+                  labels_in_frame: *id005
+                  complete_overlay: *id004
+                required:
+                - origin_in_frame
+                - endpoints_in_frame
+                - labels_in_frame
+                - complete_overlay
+                additionalProperties: false
+            required:
+            - origin_px
+            - endpoints_px
+            - label_boxes_xyxy
+            - visibility
+            additionalProperties: false
+        required:
+        - tool
+        - axes
+        - units
+        - prompt_text
+        - legend
+        - rendering_space
+        - metric_scale
+        - world_to_pixel_correspondence
+        - display_note
+        - render_attempted_axes
+        - glyph
+        additionalProperties: false
+      image: *id001
+    required:
+    - obs_id
+    - camera
+    - cam_pose_snapshot
+    - tick
+    - image
+    - annotation
+    additionalProperties: false

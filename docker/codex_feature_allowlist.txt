@@ -1,0 +1,36 @@
+# Features that MAY be enabled when the Codex seat starts. Everything else that `codex features
+# list` reports as enabled aborts the episode before the first model call.
+#
+# This is the inverse of codex_config.toml. That file is a DENY list of feature names and fails
+# open: a native surface added under a new name in a point release is enabled by default and
+# named nowhere. This file is the ALLOW list, checked against the CLI's own report of EFFECTIVE
+# state, so the unknown-new-feature case fails closed. Measured on 0.154.0 under the seat config.
+#
+# Stable, on, and deliberately left on: the agent stack under test.
+auth_elicitation
+# Required: gpt-6-astra can call tools ONLY through the code-mode host (measured: with it off the
+# tool router fails closed and the model sees no tools). Declared residual in clis.py.
+code_mode_host
+compaction_image_budget
+content_item_kinds
+enable_request_compression
+fast_mode
+guardian_approval
+mentions_v2
+personality
+remote_compaction_v2
+unbounded_connection_retries
+# Declared RESIDUAL: cannot be switched off on 0.154.0 (config file, -c, --disable all leave it
+# true). Bounded by sandbox_mode=read-only and an image with no RoboTwin source; the sidecar
+# fails any episode whose stream shows an exec item.
+unified_exec
+# Stage "removed" but still reported true: retired flags whose behaviour became unconditional.
+collaboration_modes
+item_ids
+resize_all_images
+sqlite
+steer
+terminal_resize_reflow
+tool_search_always_defer_mcp_tools
+tui_app_server
+unified_exec_zsh_fork

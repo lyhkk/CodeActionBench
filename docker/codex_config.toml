@@ -1,0 +1,118 @@
+# Codex configuration for one benchmark episode. Baked into the agent image, copied into a
+# throwaway CODEX_HOME beside auth.json, and never read from a user or project location.
+#
+# Every `[features]` line below turns OFF something this CLI ships ON. That list is not
+# defensive padding: `codex features list` on 0.154.0 reports apps, browser_use, computer_use,
+# goals, hooks, image_generation, multi_agent, plugins, shell_tool, unified_exec, view_image and
+# skill_search all STABLE and enabled by default. A seat that only disabled what it happened to
+# think of would have run the benchmark with a browser, a shell and a subagent pool attached.
+#
+# What is deliberately NOT disabled: personality, compaction_image_budget, remote_compaction_v2,
+# enable_request_compression, unbounded_connection_retries, guardian_approval. Those are the
+# agent stack under test. Switching them off would measure a Codex nobody runs.
+
+approval_policy = "never"
+sandbox_mode = "read-only"
+# No repository doc, no rules file, no inherited instructions. The instruction surface is hashed
+# into the run identity; any other channel into the prompt makes that hash a false claim.
+project_doc_max_bytes = 0
+web_search = "disabled"
+# gpt-6-astra's served model record declares default_reasoning_summary = "none". Without this the
+# rung is funded and the transcript records nothing -- the same defect Anthropic's
+# thinking.display default produced on the first vendor seat.
+model_reasoning_summary = "auto"
+hide_agent_reasoning = false
+model_verbosity = "medium"
+# The persona overlay is a prompt modifier whose default can move between versions. Legal values
+# on 0.154.0 are none | friendly | pragmatic (anything else is a strict-config error); `none` is
+# the one that adds no text.
+personality = "none"
+# The model record OpenAI serves to this CLI declares context_window=272000 and
+# max_context_window=872000 for gpt-6-astra. The default is the smaller one; this raises the
+# window the CLI plans and compacts against to the DECLARED MAXIMUM. Not the API's 1.05M: a value
+# above what the served record allows would only stop compaction from firing before the server's
+# own limit does, and the episode would die at that limit instead of compacting.
+model_context_window = 872000
+# Tool-result cap, aligned with the first vendor seat: Claude Code's MAX_MCP_OUTPUT_TOKENS
+# defaults to 25,000 and the agent service pins that value explicitly. The served model record
+# carries its own truncation_policy of 10,000 tokens, which is not user-configurable; this key
+# is. The benchmark's own MODEL_VISIBLE_RESULT_MAX_BYTES (32 KiB) binds before either, and the
+# sidecar fails an episode whose stream shows a CLI truncation marker anyway.
+tool_output_token_limit = 25000
+
+[analytics]
+enabled = false
+
+[features]
+# --- code mode. gpt-6-astra is tool_mode="code_mode_only": its tool calls travel through the
+# code-mode host, and disabling the host hands the model no tools at all (measured live). So the
+# host is ON for this seat, and the residual is declared, not hidden. code_mode / code_mode_only
+# stay at their under-development defaults, which is the posture the admission probe ran under.
+code_mode = false
+code_mode_host = true
+code_mode_only = false
+# --- shell and host execution
+shell_tool = false
+unified_exec = false
+unified_exec_tty = false
+shell_snapshot = false
+workspace_dependencies = false
+# --- host filesystem and screen reach
+view_image = false
+browser_use = false
+browser_use_external = false
+browser_use_full_cdp_access = false
+computer_use = false
+in_app_browser = false
+image_generation = false
+# --- delegation: the tested unit is one agent at one rung
+multi_agent = false
+multi_agent_v2 = false
+deferred_executor = false
+sleep_tool = false
+# --- anything that outlives or precedes the episode
+memories = false
+goals = false
+# --- instruction injection channels
+plugins = false
+plugin_sharing = false
+remote_plugin = false
+recommended_plugins = false
+hooks = false
+skill_search = false
+skill_mcp_dependency_install = false
+tool_suggest = false
+apps = false
+enable_mcp_apps = false
+tool_call_mcp_elicitation = false
+# --- desktop integrations with no meaning in a container, off so they cannot acquire one
+in_app_chat = false
+in_app_dictation = false
+in_app_local_automation = false
+in_app_updates = false
+prevent_idle_sleep = false
+
+# The one tool surface this seat has. `command` reaches the episode server over the internal
+# compose network; the client is the same stdio-to-TCP bridge the first vendor seat uses, so both
+# seats traverse identical transport to an identical server.
+[mcp_servers.codeaction]
+command = "python3"
+args = ["/usr/local/bin/mcp_tcp_client.py", "--host", "gateway", "--port", "8765"]
+# A missing tool surface must abort the episode at startup, not produce a toolless transcript
+# that scores zero and looks like a model failure.
+required = true
+# Codex's default handshake timeout is 30 s (measured: "timed out handshaking after 29.99s"),
+# and the simulator scene takes one to three minutes to boot before the server can answer
+# initialize. These match the first vendor seat's MCP_TIMEOUT=120000 / MCP_TOOL_TIMEOUT=600000,
+# with more headroom on the handshake because Codex has no separate connect phase.
+startup_timeout_sec = 300
+tool_timeout_sec = 600
+# Codex gates every MCP tool call behind an approval decision, and approval_policy = "never"
+# above means "never ASK" -- so an MCP tool whose approval mode is left at the default is
+# refused outright: "MCP tool call requires approval, but approval policy is never" (measured
+# on the second live attempt; the server recorded zero calls while the stream showed three).
+# Legal values are auto | prompt | writes | approve. `approve` is unconditional, which is the
+# only value that is neither interactive nor routed through the guardian reviewer this seat
+# disables. The benchmark's own server is the entire tool surface, so approving all of it is
+# the intended posture, not a relaxation.
+default_tools_approval_mode = "approve"

@@ -1,0 +1,8 @@
+# Codex Astra is the ninth evaluated configuration and runs as its own batch.
+# Configure codex-subscription in ~/.config/codeaction/agents.json first.
+schema_version: 1
+options:
+  model: [codex-astra]
+  attempts: 3
+  gpus: [0, 1, 2, 3]
+  out_dir: ../../runs/codex-astra

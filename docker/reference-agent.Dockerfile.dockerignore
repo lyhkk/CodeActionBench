@@ -1,0 +1,4 @@
+**
+!docker/
+!docker/reference-agent.Dockerfile
+!docker/reference-agent.requirements.lock

@@ -1,0 +1,7 @@
+schema_version: 1
+extensions:
+  - kind: agent
+    name: local_example
+    source: .
+    files: [local_agent.py]
+    entrypoint: local_agent:run
