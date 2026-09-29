@@ -1,8 +1,8 @@
 # <img src="docs/images/codeactionbench.svg" width="36" height="36" alt=""> CodeActionBench
 
 [Project website](https://codeactionbench.org/) ·
-[Full results & trajectories](https://huggingface.co/datasets/Yiheng-Lyu/CodeActionBench) ·
-Paper (arXiv coming soon) · [Quickstart](QUICKSTART.md) · [Documentation](docs/README.md)
+[Paper](https://arxiv.org/abs/2609.33807) ·
+Full data (coming soon) · [Quickstart](QUICKSTART.md) · [Documentation](docs/README.md)
 
 CodeActionBench evaluates how well general-purpose multimodal models turn visual
 understanding and reasoning into embodied manipulation via executable code. The
@@ -25,15 +25,10 @@ to the robot tools through MCP.
 
 ## Results and trajectories
 
-All 675 attempts are on [Hugging Face](https://huggingface.co/datasets/Yiheng-Lyu/CodeActionBench):
-25 tasks × 9 agent configurations × 3 attempts. The collection includes successes
-and failures, with recorded model text, available reasoning, tool calls and results,
-observation images, and a video for each attempt.
-
-Download the complete dataset, extract it, and open `index.html` to explore the
-trajectories offline. The smaller trajectories and results archive contains JSON
-files and `results.csv` for analysis. You can also watch example runs on the
-[project website](https://codeactionbench.org/).
+The evaluation covers 675 attempts: 25 tasks × 9 agent configurations × 3 attempts.
+The complete dataset, including trajectories, observation images, and videos, is
+coming soon. See the [paper](https://arxiv.org/abs/2609.33807) for results and the
+[project website](https://codeactionbench.org/) for example runs.
 
 ## Getting started
 
@@ -76,13 +71,20 @@ Task definitions are in [`benchmark/tasks/`](benchmark/tasks/), the runtime is i
 
 ## Citation
 
-We'll add the paper link and BibTeX citation when the arXiv preprint is available.
+```bibtex
+@article{lyu2026codeactionbench,
+  title={CodeActionBench: Evaluating Agentic Code-as-Policy for Embodied Manipulation},
+  author={Lyu, Yiheng and Jiang, Xueying and Li, Wenhao and Lu, Shijian and Zhang, Gongjie},
+  journal={arXiv preprint arXiv:2609.33807},
+  year={2026},
+  url={https://arxiv.org/abs/2609.33807}
+}
+```
 
 ## License and acknowledgments
 
-The code uses the [MIT License](LICENSE). The
-[released evaluation dataset](https://huggingface.co/datasets/Yiheng-Lyu/CodeActionBench)
-is licensed under CC BY 4.0.
+The code uses the [MIT License](LICENSE). The evaluation dataset will be released
+under CC BY 4.0.
 
 We thank the [RoboTwin](https://github.com/RoboTwin-Platform/RoboTwin) team for
 open-sourcing the simulation platform and robot assets that CodeActionBench builds

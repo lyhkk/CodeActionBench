@@ -1,6 +1,7 @@
 # Documentation
 
-- [Published results and trajectories](https://huggingface.co/datasets/Yiheng-Lyu/CodeActionBench): all 675 attempts, with an offline viewer, images, and videos.
+- [Paper](https://arxiv.org/abs/2609.33807): benchmark design and evaluation results.
+- Full evaluation data: coming soon.
 - [Quickstart](../QUICKSTART.md): setup, evaluation, results and recovery.
 - [Installation](installation.md): dependencies, assets and containers.
 - [Evaluation](evaluation.md): attempts, identity, metrics and artifacts.
