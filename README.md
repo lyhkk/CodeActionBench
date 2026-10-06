@@ -1,5 +1,7 @@
 # <img src="docs/images/codeactionbench.svg" width="36" height="36" alt=""> CodeActionBench
 
+**English** · [简体中文](README-zh.md)
+
 [Project website](https://codeactionbench.org/) ·
 [Paper](https://arxiv.org/abs/2609.33807) ·
 Full data (coming soon) · [Quickstart](QUICKSTART.md) · [Documentation](docs/README.md)
@@ -8,6 +10,11 @@ CodeActionBench evaluates how well general-purpose multimodal models turn visual
 understanding and reasoning into embodied manipulation via executable code. The
 benchmark contains 25 manipulation tasks that evaluate this capability through
 agentic Code-as-Policy.
+
+[![Selected executions across 25 tasks for Astra (Codex), Opus 5 (Reference Agent), and Opus 5 (Claude Code)](docs/images/top-three-task-showcase.gif)](https://codeactionbench.org/)
+
+*Selected executions across 25 tasks for three agent configurations. Click the
+overview to explore example runs on the project website.*
 
 Without task-specific fine-tuning, demonstrations, external specialist perception
 or grasp modules, privileged scene state, or predefined task policies, agents
@@ -29,6 +36,19 @@ The evaluation covers 675 attempts: 25 tasks × 9 agent configurations × 3 atte
 The complete dataset, including trajectories, observation images, and videos, is
 coming soon. See the [paper](https://arxiv.org/abs/2609.33807) for results and the
 [project website](https://codeactionbench.org/) for example runs.
+
+### From observations to code and action
+
+Astra (Codex) uses camera images to estimate block positions, then writes and
+runs code to stack them. When the gripper knocks the top block off, the agent
+checks a new image and adjusts its code to put the block back and withdraw
+without disturbing the stack.
+
+![Astra observes, stacks three blocks, and recovers from a displaced top block](docs/images/astra-stack-en.gif)
+
+*How an agent writes code from observations and adjusts its actions based on
+feedback. More examples, including a two-arm handover, are on the
+[project website](https://codeactionbench.org/).*
 
 ## Getting started
 
